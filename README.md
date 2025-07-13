@@ -17,14 +17,15 @@ A full-stack backend application built with **Java** and **Spring Boot** to help
 
 ## 🧰 Tech Stack
 
-| Layer         | Tech                 |
-|---------------|----------------------|
-| Language      | Java 17              |
-| Framework     | Spring Boot          |
-| Database      | H2 (in-memory)       |
-| ORM           | Spring Data JPA      |
-| API Testing   | Postman              |
-| Version Control | Git + GitHub       |
+| Layer           | Tech                 |
+|-----------------|----------------------|
+| Language        | Java 17              |
+| Framework       | Spring Boot          |
+| Database        | H2 (in-memory)       |
+| ORM             | Spring Data JPA      |
+| API Testing     | Postman              |
+| Documentation   | Markdown (README.md) |
+| Version Control | Git + GitHub         |
 
 ---
 
