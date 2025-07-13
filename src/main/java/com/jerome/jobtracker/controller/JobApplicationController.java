@@ -44,7 +44,12 @@ public class JobApplicationController {
                     job.setCompany(updatedJob.getCompany());
                     job.setPosition(updatedJob.getPosition());
                     job.setStatus(updatedJob.getStatus());
-                    job.setAppliedDate((updatedJob.getAppliedDate()));
+
+                    // only update appliedDate if it's not null
+                    if (updatedJob.getAppliedDate() != null) {
+                        job.setAppliedDate(updatedJob.getAppliedDate());
+                    };
+
                     job.setNotes(updatedJob.getNotes());
                     return repository.save(job);
                 })
