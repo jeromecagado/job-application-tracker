@@ -24,6 +24,21 @@ public class JobApplicationController {
         return repository.findAll();
     }
 
+    @GetMapping("/search/company")
+    public List<JobApplication> searchByCompany(@RequestParam String company) {
+        return repository.findByCompanyContainingIgnoreCase(company);
+    }
+
+    @GetMapping("/search/positon")
+    public List<JobApplication> searchByPosition(@RequestParam String position) {
+        return repository.findByPositionContainingIgnoreCase(position);
+    }
+
+    @GetMapping("/search/status")
+    public List<JobApplication> searchByStatus(@RequestParam String status) {
+        return repository.findByStatusIgnoreCase(status);
+    }
+
     @PostMapping
     public JobApplication createJob(@RequestBody JobApplication job) {
         if (job.getAppliedDate() == null) {
@@ -54,5 +69,7 @@ public class JobApplicationController {
                     return repository.save(job);
                 })
                 .orElseThrow(() -> new RuntimeException("Job was not found with id " + id));
+
     }
+
 }
