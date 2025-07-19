@@ -60,6 +60,7 @@ As part of my journey in the **Microsoft Software & Systems Academy (MSSA)**, Iâ
 
 - [x] Implement CRUD endpoints (Spring Boot)
 - [x] Test using Postman and H2 console
+- [x] Add basic search functionality (by company, position, status)
 - [ ] Add job search via external API (Indeed, LinkedIn, etc.)
 - [ ] Build frontend using React or React Native
 - [ ] Deploy to cloud (Azure or AWS)
