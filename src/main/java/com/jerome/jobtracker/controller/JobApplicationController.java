@@ -2,6 +2,7 @@ package com.jerome.jobtracker.controller;
 
 import com.jerome.jobtracker.model.JobApplication;
 import com.jerome.jobtracker.repository.JobApplicationRepository;
+import com.jerome.jobtracker.service.ExternalJobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +14,17 @@ import java.util.List;
 public class JobApplicationController {
 
     private final JobApplicationRepository repository;
+    private ExternalJobService externalJobService;
 
     @Autowired
-    public JobApplicationController(JobApplicationRepository repository) {
+    public JobApplicationController(JobApplicationRepository repository, ExternalJobService externalJobService) {
         this.repository = repository;
+        this.externalJobService = externalJobService;
+    }
+
+    @GetMapping("/external/search")
+    public String searchExternalJobs(@RequestParam String keyword) {
+        return externalJobService.searchJobsFromApi(keyword);
     }
 
     @GetMapping
