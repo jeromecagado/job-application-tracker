@@ -11,7 +11,9 @@ A full-stack backend application built with **Java** and **Spring Boot** to help
 - ✅ Update an existing job (PUT)
 - ✅ Delete a job (DELETE)
 - ✅ H2 in-memory database for development
-- 🛠️ Future: API-based job search and frontend UI
+- ✅ Basic search by company, position, or status (GET)
+- ✅ External job search via JSearch (RapidAPI)
+- 🛠️ Future: Frontend integration and deployment to cloud. 
 
 ---
 
@@ -24,6 +26,7 @@ A full-stack backend application built with **Java** and **Spring Boot** to help
 | Database        | H2 (in-memory)       |
 | ORM             | Spring Data JPA      |
 | API Testing     | Postman              |
+| External API    | RapidAPI (JSearch)   |
 | Documentation   | Markdown (README.md) |
 | Version Control | Git + GitHub         |
 
@@ -38,6 +41,7 @@ src/
 │       └── com/jerome/jobtracker/
 │           ├── model/
 │           ├── repository/
+│           ├── service/
 │           ├── controller/
 │           └── JobTrackerApplication.java
 ```
@@ -56,12 +60,34 @@ As part of my journey in the **Microsoft Software & Systems Academy (MSSA)**, I�
 
 ---
 
+## 🔄 API Usage Examples // Added
+
+### ➕ Add a Job Application (POST)
+```json
+{
+  "company": "Microsoft",
+  "position": "Software Engineer",
+  "status": "Applied",
+  "notes": "Sent resume."
+}
+```
+
+### 🔍 Search by Company (GET)
+GET http://localhost:8080/api/jobs/search/company?company=google
+
+### 🌐 External Job Search (GET)
+GET http://localhost:8080/api/jobs/external/search?keyword=java
+---
+
 ## 🔜 Roadmap
 
 - [x] Implement CRUD endpoints (Spring Boot)
 - [x] Test using Postman and H2 console
 - [x] Add basic search functionality (by company, position, status)
-- [ ] Add job search via external API (Indeed, LinkedIn, etc.)
+- [x] External job search API using RapidAPI (GET /api/jobs/external/search?keyword=...)
+- [ ] Improve external API output formatting
+- [ ] Implement pagination and sorting
+- [ ] Add unit tests and validation logic
 - [ ] Build frontend using React or React Native
 - [ ] Deploy to cloud (Azure or AWS)
 
