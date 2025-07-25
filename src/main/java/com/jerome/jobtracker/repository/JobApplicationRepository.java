@@ -19,6 +19,4 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     // Search by status
     List<JobApplication> findByStatusIgnoreCase(String status);
 
-
-
 }
