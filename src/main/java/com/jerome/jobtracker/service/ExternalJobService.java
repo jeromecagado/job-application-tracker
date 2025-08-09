@@ -29,7 +29,7 @@ public class ExternalJobService {
 
     public String searchJobsFromApi(String keyword) {
         // Build the URL safely (escapes special characters)
-        System.out.println("apiHost=" + apiHost + ", apiKeyPresent=" + (apiKey != null && !apiKey.isBlank()));
+       // System.out.println("apiHost=" + apiHost + ", apiKeyPresent=" + (apiKey != null && !apiKey.isBlank()));
         String url = UriComponentsBuilder
                 .fromUriString("https://jsearch.p.rapidapi.com/search")
                 .queryParam("query", keyword)
