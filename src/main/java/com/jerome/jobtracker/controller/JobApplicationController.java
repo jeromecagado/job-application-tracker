@@ -1,5 +1,7 @@
 package com.jerome.jobtracker.controller;
 
+import com.jerome.jobtracker.dto.ExternalJobDto;
+import com.jerome.jobtracker.model.ExperienceLevel;
 import com.jerome.jobtracker.model.JobApplication;
 import com.jerome.jobtracker.repository.JobApplicationRepository;
 import com.jerome.jobtracker.service.ExternalJobService;
@@ -14,7 +16,7 @@ import java.util.List;
 public class JobApplicationController {
 
     private final JobApplicationRepository repository;
-    private ExternalJobService externalJobService;
+    private final ExternalJobService externalJobService;
 
     @Autowired
     public JobApplicationController(JobApplicationRepository repository, ExternalJobService externalJobService) {
@@ -23,8 +25,38 @@ public class JobApplicationController {
     }
 
     @GetMapping("/external/search")
-    public String searchExternalJobs(@RequestParam String keyword) {
+    public List<ExternalJobDto> searchExternalJobs(@RequestParam String keyword) {
         return externalJobService.searchJobsFromApi(keyword);
+    }
+
+    @GetMapping("/external/search2")
+    public List<ExternalJobDto> searchExternalJobsV2(
+            @RequestParam String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String experience,   // <-- String now
+            @RequestParam(required = false) String skills,       // CSV: "java,python, csharp"
+            @RequestParam(required = false, defaultValue = "false") boolean military,
+            @RequestParam(required = false, defaultValue = "false") boolean remote,
+            @RequestParam(required = false, defaultValue = "false") boolean hybrid,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "1") int numPages
+    ) {
+        ExperienceLevel exp = parseExperience(experience); // normalize
+        return externalJobService.searchJobsFromApiV2(
+                keyword, location, exp, skills, military, remote, hybrid, page, numPages
+        );
+    }
+
+    // Put this helper method anywhere inside the controller class (e.g., below the endpoint)
+    private ExperienceLevel parseExperience(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        String norm = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
+        try {
+            return ExperienceLevel.valueOf(norm);
+        } catch (IllegalArgumentException e) {
+            // Unknown value -> ignore (or you could throw a 400 if you want strict behavior)
+            return null;
+        }
     }
 
     @GetMapping
@@ -37,7 +69,7 @@ public class JobApplicationController {
         return repository.findByCompanyContainingIgnoreCase(company);
     }
 
-    @GetMapping("/search/positon")
+    @GetMapping("/search/position")
     public List<JobApplication> searchByPosition(@RequestParam String position) {
         return repository.findByPositionContainingIgnoreCase(position);
     }
@@ -77,7 +109,5 @@ public class JobApplicationController {
                     return repository.save(job);
                 })
                 .orElseThrow(() -> new RuntimeException("Job was not found with id " + id));
-
     }
-
 }
