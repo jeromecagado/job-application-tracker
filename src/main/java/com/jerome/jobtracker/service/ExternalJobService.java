@@ -140,13 +140,13 @@ public class ExternalJobService {
         if (experience != null) {
             switch (experience) {
                 case NEW_GRAD -> q.append(" (\"new grad\" OR \"recent graduate\" OR campus OR \"university hire\" OR \"early career\" OR \"new college graduate\")");
-                case ENTRY_LEVEL -> q.append(" (junior OR \"entry level\" OR associate)");
+                case ENTRY_LEVEL -> q.append(" (junior OR \"entry level\" OR \"early talent\" OR associate)");
                 case ONE_PLUS -> q.append(" (\"1+ years\" OR \"one year\")");
                 case THREE_PLUS -> q.append(" (\"3+ years\" OR \"three years\")");
             }
         }
         if (military) {
-            q.append(" (veteran OR \"military friendly\" OR DoD OR skillbridge OR MSSA)");
+            q.append(" (veteran OR \"military friendly\" OR \"DoD\" OR \"skillbridge\" OR \"MSSA\")");
         }
         if (remote && hybrid) {
             q.append(" (remote OR hybrid)");

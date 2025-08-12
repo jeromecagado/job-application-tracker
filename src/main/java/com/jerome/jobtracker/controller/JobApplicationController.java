@@ -47,7 +47,7 @@ public class JobApplicationController {
         );
     }
 
-    // Put this helper method anywhere inside the controller class (e.g., below the endpoint)
+
     private ExperienceLevel parseExperience(String raw) {
         if (raw == null || raw.isBlank()) return null;
         String norm = raw.trim().toUpperCase().replace(' ', '_').replace('-', '_');
