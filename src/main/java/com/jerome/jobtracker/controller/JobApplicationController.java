@@ -1,5 +1,6 @@
 package com.jerome.jobtracker.controller;
 
+import com.jerome.jobtracker.dto.ApplyJobRequest;
 import com.jerome.jobtracker.dto.ExternalJobDto;
 import com.jerome.jobtracker.model.ExperienceLevel;
 import com.jerome.jobtracker.model.JobApplication;
@@ -77,6 +78,19 @@ public class JobApplicationController {
     @GetMapping("/search/status")
     public List<JobApplication> searchByStatus(@RequestParam String status) {
         return repository.findByStatusIgnoreCase(status);
+    }
+
+    @PostMapping("/apply")
+    public JobApplication applyForExternalJob(@RequestBody ApplyJobRequest req) {
+        JobApplication j = new JobApplication();
+        j.setPosition(req.position());
+        j.setCompany(req.company());
+        j.setLocation(req.location());
+        j.setApplyUrl(req.applyUrl());
+        j.setSource("JSEARCH");
+        j.setStatus("APPLIED");
+        j.setAppliedDate(java.time.LocalDate.now());
+        return repository.save(j);
     }
 
     @PostMapping
