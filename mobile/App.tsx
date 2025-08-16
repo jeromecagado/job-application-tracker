@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -8,6 +8,8 @@ import {
   View,
   FlatList,
   Linking,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 
 type ExternalJobDto = {
@@ -23,6 +25,7 @@ const BASE_URL =
 export default function App() {
   const [keyword, setKeyword] = useState("software engineer");
   const [page, setPage] = useState(1);
+  const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [results, setResults] = useState<ExternalJobDto[]>([]);
@@ -45,6 +48,7 @@ export default function App() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json: ExternalJobDto[] = await res.json();
       setResults(json ?? []);
+      setHasSearched(true); // mark that the user initiated a search
     } catch (err: any) {
       setErrorMsg(err?.message ?? String(err));
       setResults([]);
@@ -52,7 +56,27 @@ export default function App() {
       setLoading(false);
     }
   };
- 
+  // After the first manual search, allow page changes to trigger new fetches.
+  useEffect(() => {
+    if (hasSearched) {
+      (async () => {
+        setLoading(true);
+        setErrorMsg(null);
+        try {
+          const res = await fetch(searchUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json: ExternalJobDto[] = await res.json();
+          setResults(json ?? []);
+        } catch (err: any) {
+          setErrorMsg(err?.message ?? String(err));
+          setResults([]);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [page, hasSearched, searchUrl]);
+
   const nextPage = () => setPage((p) => p + 1);
   const prevPage = () => setPage((p) => Math.max(1, p - 1));
 
@@ -68,7 +92,7 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>JobTracker — Search</Text>
 
       {/* Keyword input */}
@@ -89,9 +113,9 @@ export default function App() {
       {/* Pagination controls */}
       <View style={styles.row}>
         <TouchableOpacity
-          style={[styles.navBtn, page === 1 && styles.navBtnDisabled]}
+          style={[styles.navBtn, loading && styles.navBtnDisabled]}
           onPress={prevPage}
-          disabled={page === 1 || loading}
+          disabled={page === 1 || results.length === 0}
         >
           <Text style={styles.navText}>Prev</Text>
         </TouchableOpacity>
@@ -131,12 +155,12 @@ export default function App() {
       <Text style={styles.hint}>
         Base URL: {BASE_URL}{"\n"}(iOS Simulator uses localhost; Android Emulator uses 10.0.2.2)
       </Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12, backgroundColor: "#fff" },
+  container: { flex: 1, padding: 16, gap: 12, backgroundColor: "#fff", paddingTop: Platform.select( { ios: 0, android: StatusBar.currentHeight ?? 0})},
   title: { fontSize: 22, fontWeight: "700", textAlign: "center", marginTop: 8 },
   row: { flexDirection: "row", alignItems: "center", gap: 8 },
   input: {
