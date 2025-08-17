@@ -10,6 +10,7 @@ import {
   Linking,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from "react-native";
 
 type ExternalJobDto = {
@@ -17,6 +18,15 @@ type ExternalJobDto = {
   company: string | null;
   location: string | null;
   applyUrl: string | null;
+};
+
+type ApplyJobRequest = {
+  position: string | null;
+  company: string | null;
+  location: string | null;
+  applyUrl: string | null;
+  notes?: string | null;
+  source?: string | null;
 };
 
 const BASE_URL =
@@ -29,6 +39,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [results, setResults] = useState<ExternalJobDto[]>([]);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   // Build the URL
   const searchUrl = useMemo(() => {
@@ -82,9 +93,63 @@ export default function App() {
 
   // When keyword changes, reset to page 1
   const onChangeKeyword = (text: string) => {
-    setKeyword(text);
+    setKeyword(text.trimStart());
     setPage(1);
   };
+
+ const postApply = async (payload: ApplyJobRequest) => {
+  const res = await fetch(`${BASE_URL}/api/jobs/apply`, {
+    method: "POST",              
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Save Failed (HTTP ${res.status}) ${text}`);
+  }
+  return res.json();
+};
+
+const postSave = async (payload: ApplyJobRequest) => {
+  const res = await fetch(`${BASE_URL}/api/jobs/save`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Save Failed (HTTP ${res.status}) ${text}`);
+  }
+  return res.json();
+};
+
+  const handleApply = async (item: ExternalJobDto, openAfterSave: boolean) => {
+    const payload: ApplyJobRequest = {
+      position: item.title ?? null,
+      company: item.company ?? null,
+      location: item.location ?? null,
+      applyUrl: item.applyUrl ?? null,
+      notes: null,
+      source: "JSEARCH",
+    };
+
+    const savingKey = `${item.applyUrl ?? item.title}`;
+    setSavingId(savingKey);
+    try {
+      await postApply(payload);
+      Alert.alert("Saved", "Job saved to your applications.");
+      if (openAfterSave && item.applyUrl) {
+        Linking.openURL(item.applyUrl)
+      }
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Failed to save job");
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const isSaving = (item: ExternalJobDto) =>
+    savingId === `${item.applyUrl ?? item.title}`;
 
   const openApply = (url?: string | null) => {
     if (!url) return;
@@ -110,22 +175,26 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Pagination controls */}
+     {/* Pagination controls */}
       <View style={styles.row}>
         <TouchableOpacity
-          style={[styles.navBtn, loading && styles.navBtnDisabled]}
+          style={[styles.navBtn, (loading || page === 1) && styles.navBtnDisabled]}
           onPress={prevPage}
-          disabled={page === 1 || results.length === 0}
+          disabled={loading || page === 1}
         >
           <Text style={styles.navText}>Prev</Text>
         </TouchableOpacity>
 
-        <Text style={styles.pageLabel}>Page {page}</Text>
+          <Text style={styles.pageLabel}>Page {page}</Text>
 
-        <TouchableOpacity style={styles.navBtn} onPress={nextPage} disabled={loading}>
+        <TouchableOpacity
+          style={[styles.navBtn, loading && styles.navBtnDisabled]}
+          onPress={nextPage}
+          disabled={loading}
+        >
           <Text style={styles.navText}>Next</Text>
         </TouchableOpacity>
-      </View>
+      </View> 
 
       {/* Error / empty states */}
       {errorMsg ? <Text style={styles.error}>Error: {errorMsg}</Text> : null}
@@ -144,18 +213,111 @@ export default function App() {
             <Text style={styles.cardSub}>
               {item.company ?? "(company unknown)"} · {item.location ?? "—"}
             </Text>
-            {item.applyUrl ? (
-              <TouchableOpacity onPress={() => openApply(item.applyUrl)} style={styles.applyBtn}>
-                <Text style={styles.applyText}>Apply</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        )}
-      />
+        
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {/* Save only */}
+            <TouchableOpacity
+              onPress={async () => {
+                const payload: ApplyJobRequest = {
+                position: item.title ?? null,
+                company: item.company ?? null,
+                location: item.location ?? null,
+                applyUrl: item.applyUrl ?? null,
+                notes: null,
+                source: "JSEARCH",
+              };
+              const key = `${item.applyUrl ?? item.title}`;
+              setSavingId(key);
+              try {
+                await postSave(payload); // calls /api/jobs/save
+                // success toast
+                if (typeof window !== "undefined" && window.alert) {
+                  window.alert("Saved!");
+                } else {
+                  Alert.alert("Saved", "Job saved.");
+                }
+              } catch (e: any) {
+                const msg = String(e?.message ?? "");
+                if (msg.includes("409")) {
+                // already saved
+                if (typeof window !== "undefined" && window.alert) {
+                  window.alert("Already saved");
+                  } else {
+                    Alert.alert("Already saved", "You saved this job earlier.");
+                  }
+                } else {
+                  if (typeof window !== "undefined" && window.alert) {
+                    window.alert(`Error: ${msg}`);
+                  } else {
+                    Alert.alert("Error", msg || "Failed to save job");
+                  }
+                }
+              } finally {
+                setSavingId(null);
+              }
+            }}
+            disabled={isSaving(item)}
+            style={[styles.applyBtn, isSaving(item) && { opacity: 0.6 }]}>
+            <Text style={styles.applyText}>
+              {isSaving(item) ? "Saving..." : "Save"}
+            </Text>
+          </TouchableOpacity>
+
+        {/* Apply & Save */}
+        {item.applyUrl ? (
+          <TouchableOpacity
+            onPress={async () => {
+              const payload: ApplyJobRequest = {
+              position: item.title ?? null,
+              company: item.company ?? null,
+              location: item.location ?? null,
+              applyUrl: item.applyUrl ?? null,
+              notes: null,
+              source: "JSEARCH",
+            };
+            const key = `${item.applyUrl ?? item.title}`;
+            setSavingId(key);
+            try {
+              await postApply(payload);             // <— uses /apply (promotes SAVED → APPLIED)
+              if (item.applyUrl) {
+                Linking.openURL(item.applyUrl);    // open the apply URL
+              }      
+            } catch (e: any) {
+              Alert.alert("Error", e?.message ?? "Failed to apply");
+            } finally {
+              setSavingId(null);
+            }
+          }}
+          disabled={isSaving(item)}
+          style={[styles.applyBtn, isSaving(item) && { opacity: 0.6 }]}
+        >
+          <Text style={styles.applyText}>
+            {isSaving(item) ? "Saving..." : "Apply & Save"}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+
+        {/* Open without saving */}
+        {item.applyUrl ? (
+          <TouchableOpacity
+            onPress={() => {
+              if (item.applyUrl) {
+                Linking.openURL(item.applyUrl);
+              }
+            }}
+              style={[styles.applyBtn, { backgroundColor: "#10b981" }]}
+          >
+            <Text style={styles.applyText}>Open</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+    )}
+    />
       <Text style={styles.hint}>
         Base URL: {BASE_URL}{"\n"}(iOS Simulator uses localhost; Android Emulator uses 10.0.2.2)
       </Text>
-    </SafeAreaView>
+  </SafeAreaView>
   );
 }
 
