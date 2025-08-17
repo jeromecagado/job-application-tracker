@@ -7,7 +7,9 @@ import com.jerome.jobtracker.model.JobApplication;
 import com.jerome.jobtracker.repository.JobApplicationRepository;
 import com.jerome.jobtracker.service.ExternalJobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,8 +82,36 @@ public class JobApplicationController {
         return repository.findByStatusIgnoreCase(status);
     }
 
+    @GetMapping("/saved")
+    public List<JobApplication> getSaved() {
+        return repository.findByStatusIgnoreCase("SAVED");
+    }
+
+    @GetMapping("/applied")
+    public List<JobApplication> getApplied() {
+        return repository.findByStatusIgnoreCase("APPLIED");
+    }
+
     @PostMapping("/apply")
     public JobApplication applyForExternalJob(@RequestBody ApplyJobRequest req) {
+        if (req.applyUrl() != null && !req.applyUrl().isBlank()) {
+            // Already applied? -> 409
+            boolean alreadyApplied = repository
+                    .existsByApplyUrlIgnoreCaseAndStatusIgnoreCase(req.applyUrl(), "APPLIED");
+            if (alreadyApplied) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Already applied");
+            }
+
+            // If it exists as SAVED, promote it to APPLIED
+            var existingOpt = repository.findFirstByApplyUrlIgnoreCase(req.applyUrl());
+            if (existingOpt.isPresent()) {
+                JobApplication j = existingOpt.get();
+                j.setStatus("APPLIED");
+                j.setAppliedDate(LocalDate.now());
+                return repository.save(j);
+            }
+        }
+
         JobApplication j = new JobApplication();
         j.setPosition(req.position());
         j.setCompany(req.company());
@@ -92,6 +122,29 @@ public class JobApplicationController {
         j.setAppliedDate(java.time.LocalDate.now());
         return repository.save(j);
     }
+
+    @PostMapping("/save")
+    public JobApplication saveExternalJob(@RequestBody ApplyJobRequest req) {
+        if (req.applyUrl() != null && !req.applyUrl().isBlank()) {
+            boolean alreadySaved = repository
+                    .existsByApplyUrlIgnoreCaseAndStatusIgnoreCase(req.applyUrl(), "SAVED");
+            if (alreadySaved) {
+                // 409 tells the user "you already saved this"
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Already saved");
+            }
+        }
+
+        JobApplication j = new JobApplication();
+        j.setPosition(req.position());
+        j.setCompany(req.company());
+        j.setLocation(req.location());
+        j.setApplyUrl(req.applyUrl());
+        j.setSource(req.source() != null ? req.source() : "JSEARCH");
+        j.setNotes(req.notes());
+        j.setStatus("SAVED");
+        j.setAppliedDate(null);
+        return repository.save(j);
+}
 
     @PostMapping
     public JobApplication createJob(@RequestBody JobApplication job) {
@@ -117,7 +170,7 @@ public class JobApplicationController {
                     // only update appliedDate if it's not null
                     if (updatedJob.getAppliedDate() != null) {
                         job.setAppliedDate(updatedJob.getAppliedDate());
-                    };
+                    }
 
                     job.setNotes(updatedJob.getNotes());
                     return repository.save(job);
