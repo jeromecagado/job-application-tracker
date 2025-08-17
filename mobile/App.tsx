@@ -97,31 +97,31 @@ export default function App() {
     setPage(1);
   };
 
- const postApply = async (payload: ApplyJobRequest) => {
-  const res = await fetch(`${BASE_URL}/api/jobs/apply`, {
-    method: "POST",              
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const postApply = async (payload: ApplyJobRequest) => {
+    const res = await fetch(`${BASE_URL}/api/jobs/apply`, {
+      method: "POST",              
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`Save Failed (HTTP ${res.status}) ${text}`);
   }
   return res.json();
-};
+  };
 
-const postSave = async (payload: ApplyJobRequest) => {
-  const res = await fetch(`${BASE_URL}/api/jobs/save`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const postSave = async (payload: ApplyJobRequest) => {
+    const res = await fetch(`${BASE_URL}/api/jobs/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`Save Failed (HTTP ${res.status}) ${text}`);
   }
   return res.json();
-};
+  };
 
   const handleApply = async (item: ExternalJobDto, openAfterSave: boolean) => {
     const payload: ApplyJobRequest = {
