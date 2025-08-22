@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jerome.jobtracker.dto.ExternalJobDto;
 import com.jerome.jobtracker.model.ExperienceLevel;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -22,6 +23,12 @@ public class ExternalJobService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper; // Spring auto-wires a preconfigured mapper
+
+    @PostConstruct
+    void logApiConfig() {
+        System.out.println("[JSearch] host=" + apiHost +
+                " | keyPresent=" + (apiKey != null && !apiKey.isBlank()));
+    }
 
     // Values pulled from application.properties (and env variable for the key)
     @Value("${external.jsearch.host}")
