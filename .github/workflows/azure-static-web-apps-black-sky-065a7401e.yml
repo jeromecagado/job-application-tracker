@@ -20,8 +20,9 @@ jobs:
           submodules: true
           lfs: false
 
-      # 🧩 Install and build Expo web app
+      # 🧩 Install and build Expo web app (inside the 'mobile' folder)
       - name: Install dependencies and build
+        working-directory: ./mobile
         run: |
           npm install -g expo-cli
           npm install
@@ -34,8 +35,8 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_SKY_065A7401E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "."
-          output_location: "dist"
+          app_location: "mobile"
+          output_location: "mobile/dist"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -49,5 +50,3 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLACK_SKY_065A7401E }}
           action: "close"
-
-
