@@ -21,8 +21,8 @@ jobs:
           lfs: false
 
       - name: Install dependencies and build Expo web app
+        working-directory: mobile
         run: |
-          cd mobile
           npm install -g expo-cli
           npm install
           npx expo export --platform web
@@ -34,7 +34,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "mobile"
-          output_location: "mobile/dist"
+          output_location: "dist"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
