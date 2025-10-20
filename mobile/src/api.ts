@@ -1,8 +1,21 @@
 // mobile/src/api.ts
 import { Platform } from "react-native";
 
-export const BASE_URL =
-  Platform.OS === "android" ? "http://10.0.2.2:8080" : "http://localhost:8080";
+// Detect if app is running in a web build (like Expo Web on Azure)
+const isWeb = Platform.OS === "web";
+
+// Azure backend URL
+const AZURE_URL = "https://jobtracker-backend-cwaqbbb8hnehhvgq.westus2-01.azurewebsites.net";
+
+// Local URLs
+const LOCAL_ANDROID = "http://10.0.2.2:8080";
+const LOCAL_IOS = "http://localhost:8080";
+
+export const BASE_URL = isWeb
+  ? AZURE_URL
+  : Platform.OS === "android"
+  ? LOCAL_ANDROID
+  : LOCAL_IOS;
 
 export type ExternalJob = {
   title: string;
