@@ -1,3 +1,4 @@
+import { BASE_URL } from "../api";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import {
   Platform,
@@ -15,9 +16,6 @@ import {
 import JobCard from "../components/JobCard";
 import styles from "../styles/SearchStyles";
 import type { ExternalJobDto, ApplyJobRequest } from "../types";
-
-const BASE_URL =
-  Platform.OS === "android" ? "http://10.0.2.2:8080" : "http://localhost:8080";
 
 export default function SearchScreen({ navigation }: any) {
   const [keyword, setKeyword] = useState("software engineer");
