@@ -1,10 +1,8 @@
+import { BASE_URL } from "../api";
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, SafeAreaView, Platform, Linking, Alert } from "react-native";
 import JobCard from "../components/JobCard";
 import styles from "../styles/SearchStyles";
-
-const BASE_URL =
-  Platform.OS === "android" ? "http://10.0.2.2:8080" : "http://localhost:8080";
 
 export default function SavedJobsScreen() {
   const [jobs, setJobs] = useState<any[]>([]);
