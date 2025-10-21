@@ -9,6 +9,10 @@
 ![Expo](https://img.shields.io/badge/Expo-Go-black?logo=expo)
 ---
 
+## 🎥 Demo
+
+[![Job Tracker Demo](https://img.youtube.com/vi/vXMh6BkV6XM/0.jpg)](https://youtu.be/vXMh6BkV6XM)
+
 ## 🚀 Overview
 The Job Application Tracker is a cross-platform solution that lets users:
 	•	🔍 Search real-time job listings via the JSearch API (RapidAPI)
