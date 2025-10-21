@@ -156,6 +156,15 @@ export default function SearchScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>JobTracker — Search</Text>
+      <Text style={{
+        textAlign: "center",
+        fontSize: 16,
+        color: "#555",
+        marginBottom: 12,
+      }}>
+        Track applications. Discover new jobs. Stay organized.
+      </Text>
+
       <View style= {{ alignItems: "center", marginBottom: 8 }}>
         <TouchableOpacity
           style={{
