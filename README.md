@@ -1,5 +1,5 @@
 # Job Application Tracker
-📌 A full-stack project to track and search jobs — built with Spring Boot & React Native.
+📱 A full-stack application that helps users track, search, and manage job applications — built with Spring Boot (Java) and React Native (TypeScript + Expo).
 
 ![Java](https://img.shields.io/badge/Java-17-blue?logo=java)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green?logo=springboot)
@@ -9,17 +9,43 @@
 ![Expo](https://img.shields.io/badge/Expo-Go-black?logo=expo)
 ---
 
-## 🚀 Features
+## 🚀 Overview
+The Job Application Tracker is a cross-platform solution that lets users:
+	•	🔍 Search real-time job listings via the JSearch API (RapidAPI)
+	•	💾 Save interesting jobs to a local database
+	•	✅ Mark jobs as “Applied” or “Saved”
+	•	📊 Filter and search by company, position, or application status
+	•	☁️ Deploy backend to Azure App Service with database integration
+	•	📱 Access from iOS, Android, and Web through a unified React Native front end
 
-- ✅ Add new job applications (POST)
-- ✅ View all job applications (GET)
-- ✅ Update an existing job (PUT)
-- ✅ Delete a job (DELETE)
-- ✅ H2 in-memory database for development
-- ✅ Basic search by company, position, or status (GET)
-- ✅ External job search via JSearch (RapidAPI)
-- ✅ Frontend integration
-- 🛠️ Deployment to cloud/Database. 
+## ✨ Key Features
+
+🖥️ Backend (Spring Boot)
+	•	Full CRUD operations for job applications
+	•	External job search via JSearch (RapidAPI)
+	•	Local persistence with SQLite
+	•	RESTful API design with clean endpoints
+	•	Error handling using ResponseStatusException
+	•	Tested via Postman and Swagger UI
+	•	Deployed to Azure Web App
+
+📱 Frontend (React Native + Expo)
+	•	Job search interface with pagination
+	•	Tabs for Search, Saved, and Applied views
+	•	Integration with backend REST endpoints
+	•	Responsive layout for web, iOS, and Android
+	•	(Planned) Filters by location, skills, and experience level
+	•	(Planned) UI enhancements and dark mode
+
+## 🧠 Architecture
+
+Frontend (React Native + Expo)
+        ↓
+Backend API (Spring Boot)
+        ↓
+JSearch API (RapidAPI) — External job data
+        ↓
+SQLite Database — Saved/Applied jobs
 
 ---
 
@@ -29,10 +55,11 @@
 |-----------------|----------------------|
 | Language        | Java 17              |
 | Framework       | Spring Boot          |
-| Database        | H2 (in-memory)       |
+| Database        | SQLite               |
 | ORM             | Spring Data JPA      |
-| API Testing     | Postman              |
+| API Testing     | Postman/Swager       |
 | External API    | RapidAPI (JSearch)   |
+| Cloud           | Azure App Service    |
 | Documentation   | Markdown (README.md) |
 | Version Control | Git + GitHub         |
 
@@ -41,22 +68,28 @@
 |-----------------|----------------------|
 | Language        | TypeScript           |
 | Framework       | React Native         |
-| Testing         | Expo                 |
+| Build Tool      | Expo                 |
+| API Connection  | Expo                 |
+| Platform        | Web, Android, iOS    |
 ---
 
 ## 📁 Project Structure
 
-backend-api/
-└── src/
-    └── main/java/com/jerome/jobtracker/
-        ├── model/
-        ├── repository/
-        ├── service/
-        ├── controller/
-        └── JobTrackerApplication.java
-
-mobile/
-└── App.tsx
+job-application-tracker/
+├── backend-api/
+│   ├── src/main/java/com/jerome/jobtracker/
+│   │   ├── controller/        → REST endpoints
+│   │   ├── service/           → Business logic, API calls
+│   │   ├── model/             → Entities (JobApplication)
+│   │   ├── repository/        → Spring Data JPA interfaces
+│   │   └── JobTrackerApplication.java
+│   └── resources/
+│       ├── application.properties
+│       └── schema.sql
+└── mobile/
+    ├── App.tsx
+    ├── components/
+    └── screens/
 
 ---
 
@@ -103,13 +136,13 @@ GET http://localhost:8080/api/jobs/external/search2?keyword=java&page=1&numPages
 ### Backend
 - [x] CRUD endpoints
 - [x] External job search via RapidAPI
-- [ ] Pagination & sorting
-- [ ] Cloud deployment (Azure/AWS)
+- [x] Pagination & sorting
+- [x] Cloud deployment (Azure/AWS)
 
 ### Frontend
 - [x] React Native app with keyword search
 - [x] Pagination (Next/Prev)
-- [ ] Input fields for location, filters
+- [x] Input fields for location, filters
 - [ ] UI polish (cards, dark mode)
 
 ---
